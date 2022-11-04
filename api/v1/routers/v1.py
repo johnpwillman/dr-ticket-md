@@ -159,7 +159,7 @@ async def post_ticket(ticket: Ticket, current_user: User = Depends(get_current_a
     db.put(ticket.dict())
     return {"message": "ticket posted"}
 
-@router.delete("/ticket/{key}")
+@router.delete("/tickets/{key}")
 async def delete_ticket(key: str, current_user: User = Depends(get_current_active_user)):
     if current_user.admin:
         db = deta.Base("dr-ticket-md-tickets")
