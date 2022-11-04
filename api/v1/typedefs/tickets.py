@@ -15,6 +15,6 @@ class Ticket(BaseModel):
     subject: str
     body: str
     status: TicketStatus = TicketStatus.OPEN
-    submitted_by: str
+    submitted_by: Union[str, None] = None
     assigned_to: Union[str, None] = None
     created_at: datetime = datetime.utcnow()

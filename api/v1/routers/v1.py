@@ -153,13 +153,15 @@ async def all_tickets(current_user: User = Depends(get_current_active_user)):
     return all_items
 
 @router.post("/tickets")
-async def post_ticket(ticket: Ticket):
+async def post_ticket(ticket: Ticket, current_user: User = Depends(get_current_active_user)):
+    ticket.submitted_by = current_user.email
     db = deta.Base("dr-ticket-md-tickets")
     db.put(ticket.dict())
     return {"message": "ticket posted"}
 
 @router.delete("/ticket/{key}")
-async def delete_ticket(key: str):
-    db = deta.Base("dr-ticket-md-tickets")
-    db.delete(key)
-    return {"message": "ticket deleted"}
+async def delete_ticket(key: str, current_user: User = Depends(get_current_active_user)):
+    if current_user.admin:
+        db = deta.Base("dr-ticket-md-tickets")
+        db.delete(key)
+        return {"message": "ticket deleted"}
