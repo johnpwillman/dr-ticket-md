@@ -24,3 +24,14 @@ def test_ticket_post():
         }
     )
     assert response.json() == {"message": "ticket posted"}
+
+def test_user_signup():
+    assert 1==1
+    response = client.post(
+        url="v1/users",
+        json={
+            "email": "john@example.com",
+            "password": "test"
+        }
+    )
+    assert response.json() == {"message": "User created"}
