@@ -9,8 +9,7 @@ from deta import Deta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from ..typedefs.tickets import Ticket, TicketStatus, TicketWithComments
-from ..typedefs.comments import Comment
+from ..typedefs.tickets import Ticket, TicketStatus, TicketWithComments, Comment
 from ..typedefs.users import Signup, User, UserInDB
 from ..typedefs.oauth import Token, TokenData
 
@@ -154,10 +153,16 @@ async def all_tickets(current_user: User = Depends(get_current_active_user)):
 
 @router.post("/tickets")
 async def post_ticket(ticket: Ticket, current_user: User = Depends(get_current_active_user)):
-    ticket.submitted_by = current_user.email
-    db = deta.Base("dr-ticket-md-tickets")
-    db.put(ticket.dict())
-    return {"message": "ticket posted"}
+    try:
+        ticket.submitted_by = current_user.email
+        db = deta.Base("dr-ticket-md-tickets")
+        db.put(ticket.dict())
+        return {"message": "ticket posted"}
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(err)
+        )
 
 @router.get("/tickets/{key}", response_model=TicketWithComments)
 async def get_ticket(key: str, current_user: User = Depends(get_current_active_user)):
