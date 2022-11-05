@@ -1,16 +1,16 @@
 import os
-from typing import Union
+from typing import Union, List
 from datetime import datetime, timedelta
-
-from deta import Deta
 
 from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
+from deta import Deta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from ..typedefs.tickets import Ticket, TicketStatus
+from ..typedefs.tickets import Ticket, TicketStatus, TicketWithComments
+from ..typedefs.comments import Comment
 from ..typedefs.users import Signup, User, UserInDB
 from ..typedefs.oauth import Token, TokenData
 
@@ -159,9 +159,33 @@ async def post_ticket(ticket: Ticket, current_user: User = Depends(get_current_a
     db.put(ticket.dict())
     return {"message": "ticket posted"}
 
+@router.get("/tickets/{key}", response_model=TicketWithComments)
+async def get_ticket(key: str, current_user: User = Depends(get_current_active_user)):
+    tdb = deta.Base("dr-ticket-md-tickets")
+    ticket: TicketWithComments = tdb.get(key)
+    cdb = deta.Base("dr-ticket-md-comments")
+    comments: List[Comment] = cdb.fetch(query={"ticket": key})
+    ticket.comments = comments
+    return ticket
+
 @router.delete("/tickets/{key}")
 async def delete_ticket(key: str, current_user: User = Depends(get_current_active_user)):
     if current_user.admin:
         db = deta.Base("dr-ticket-md-tickets")
         db.delete(key)
         return {"message": "ticket deleted"}
+
+# Comments ####################################################################
+
+@router.post("/tickets/{key}/comments")
+async def post_comment(key: str, comment: Comment, current_user: User = Depends(get_current_active_user)):
+    tdb = deta.Base("dr-ticket-md-tickets")
+    ticket: Ticket = tdb.get(key)
+    comment.ticket = key
+    comment.submitted_by = current_user.email
+    if comment.status != ticket.status:
+        ticket.status = comment.status
+        tdb.put(ticket.dict())
+    cdb = deta.Base("dr-ticket-md-comments")
+    cdb.put(comment.dict())
+    return comment
