@@ -11,21 +11,23 @@ class TicketStatus(str, Enum):
     CLOSED = 'closed'
 
 class Ticket(BaseModel):
-    key: str = str(uuid4())
     subject: str
     body: str
     status: TicketStatus = TicketStatus.OPEN
-    submitted_by: Union[str, None] = None
-    assigned_to: Union[str, None] = None
-    created_at: datetime = datetime.utcnow()
 
 class Comment(BaseModel):
-    key: str = str(uuid4())
     body: Union[str, None] = None
     status: TicketStatus
+
+class CommentInDB(Comment):
+    key: str = str(uuid4())
     ticket: Union[str, None] = None
     submitted_by: Union[str, None] = None
-    created_at: datetime = datetime.utcnow()
+    created_at: datetime = str(datetime.utcnow())
 
-class TicketWithComments(Ticket):
-    comments: Union[List[Comment], None] = None
+class TicketInDB(Ticket):
+    key: str = str(uuid4())
+    submitted_by: Union[str, None] = None
+    assigned_to: Union[str, None] = None
+    created_at: datetime = str(datetime.utcnow())
+    comments: Union[List[CommentInDB], None] = None

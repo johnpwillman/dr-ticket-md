@@ -9,7 +9,7 @@ from deta import Deta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from ..typedefs.tickets import Ticket, TicketStatus, TicketWithComments, Comment
+from ..typedefs.tickets import Ticket, TicketStatus, TicketInDB, Comment, CommentInDB
 from ..typedefs.users import Signup, User, UserInDB
 from ..typedefs.oauth import Token, TokenData
 
@@ -154,9 +154,12 @@ async def all_tickets(current_user: User = Depends(get_current_active_user)):
 @router.post("/tickets")
 async def post_ticket(ticket: Ticket, current_user: User = Depends(get_current_active_user)):
     try:
-        ticket.submitted_by = current_user.email
+        ticket_in_db = TicketInDB(
+            **ticket,
+            submitted_by=current_user.email
+        )
         db = deta.Base("dr-ticket-md-tickets")
-        db.put(ticket.dict())
+        db.put(ticket_in_db.dict())
         return {"message": "ticket posted"}
     except Exception as err:
         raise HTTPException(
@@ -164,14 +167,16 @@ async def post_ticket(ticket: Ticket, current_user: User = Depends(get_current_a
             detail=str(err)
         )
 
-@router.get("/tickets/{key}", response_model=TicketWithComments)
+@router.get("/tickets/{key}", response_model=TicketInDB)
 async def get_ticket(key: str, current_user: User = Depends(get_current_active_user)):
     tdb = deta.Base("dr-ticket-md-tickets")
-    ticket: TicketWithComments = tdb.get(key)
+    ticket = TicketInDB(**tdb.get(key))
     cdb = deta.Base("dr-ticket-md-comments")
-    comments: List[Comment] = cdb.fetch(query={"ticket": key})
+    raw_comments = cdb.fetch(query={"ticket": key}).items
+    comments: List[CommentInDB] = list(map(lambda c: CommentInDB(**c), raw_comments))
     ticket.comments = comments
     return ticket
+
 
 @router.delete("/tickets/{key}")
 async def delete_ticket(key: str, current_user: User = Depends(get_current_active_user)):
@@ -184,13 +189,23 @@ async def delete_ticket(key: str, current_user: User = Depends(get_current_activ
 
 @router.post("/tickets/{key}/comments")
 async def post_comment(key: str, comment: Comment, current_user: User = Depends(get_current_active_user)):
-    tdb = deta.Base("dr-ticket-md-tickets")
-    ticket: Ticket = tdb.get(key)
-    comment.ticket = key
-    comment.submitted_by = current_user.email
-    if comment.status != ticket.status:
-        ticket.status = comment.status
-        tdb.put(ticket.dict())
-    cdb = deta.Base("dr-ticket-md-comments")
-    cdb.put(comment.dict())
-    return comment
+    try:
+        tdb = deta.Base("dr-ticket-md-tickets")
+        ticket_in_db = TicketInDB(**tdb.get(key))
+        comment_in_db: CommentInDB(
+            **comment,
+            ticket=key,
+            submitted_by=current_user.email
+        )
+        if comment_in_db.status != ticket_in_db.status:
+            ticket_in_db.status = comment_in_db.status
+            ticket_in_db.created_at = str(ticket_in_db.created_at)
+            tdb.put(ticket_in_db.dict())
+        cdb = deta.Base("dr-ticket-md-comments")
+        cdb.put(comment.dict())
+        return comment
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(err) + str(ticket_in_db.created_at)
+        )
