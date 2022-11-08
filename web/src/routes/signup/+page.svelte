@@ -1,6 +1,6 @@
 <h1>SignUp</h1>
 <h3>Create a new User Account</h3>
-<form method="POST" on:submit={createUser} >
+<form method="POST" on:submit|preventDefault={createUser} >
     <label>
         email
         <input name="email" type="email" bind:value={email}>
