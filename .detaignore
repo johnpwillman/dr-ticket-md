@@ -1,0 +1,6 @@
+venv
+.deta
+__pycache__
+.env
+
+web
