@@ -2,3 +2,6 @@ venv
 .deta
 __pycache__
 .env
+
+node_modules
+.svelte-kit

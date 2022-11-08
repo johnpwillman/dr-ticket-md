@@ -1,11 +1,10 @@
 from uuid import uuid4
-from typing import Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
 
 class Signup(BaseModel):
     email: str
-    password: str
+    password: constr(min_length=8)
 
 class User(BaseModel):
     key: str = str(uuid4())
