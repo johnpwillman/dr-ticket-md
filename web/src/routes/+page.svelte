@@ -6,9 +6,10 @@
 <h1>Home</h1>
 
 {#if data.success}
-    <p>{JSON.stringify(data.detail)}</p>
+    <h3>{data.detail}</h3>
     {#each data.tickets as ticket}
-    {JSON.stringify(ticket)}
+        <div>{JSON.stringify(ticket)}</div>
+        <div></div>
     {/each}
 {:else}
     <p>{data.detail}</p>

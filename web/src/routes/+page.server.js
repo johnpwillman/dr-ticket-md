@@ -10,14 +10,6 @@ export async function load({ cookies, fetch }) {
             }
         });
 
-        if (response.status === 401) {
-            cookies.delete('jwt');
-            return {
-                success: false,
-                detail: "User login expired. Please login again."
-            }
-        }
-
         const tickets = await response.json();
         return {
             success: true,
