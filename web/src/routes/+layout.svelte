@@ -22,7 +22,7 @@
       <ul class="navbar-nav mb-2 mb-md-0">
         {#if data.user}
             <li class="nav-item">
-                <a class="nav-link disabled">{data.user.email}</a>
+                <a class="nav-link disabled" href="/users/me">{data.user.email}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/logout">Logout</a>
