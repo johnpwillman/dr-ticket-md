@@ -1,3 +1,5 @@
+import { redirect } from '@sveltejs/kit';
+
 /** @type {import('./$types').LayoutLoad} */
 export async function load({ cookies, fetch }) {
 
@@ -11,11 +13,8 @@ export async function load({ cookies, fetch }) {
         });
 
         if (response.status === 401) {
-            cookies.delete('jwt');
-            return {
-                success: false,
-                detail: "User login expired. Please login again."
-            }
+            //JWT Timed out
+            throw redirect(303, '/logout')
         }
 
         const user = await response.json();

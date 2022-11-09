@@ -3,15 +3,6 @@
     export let data;
 </script>
 
-<nav>
-    <a href="/">Home</a>
-    {#if data.user}
-        <a href="#">{data.user.email}</a>
-    {:else}
-    <a href="/login">Login</a>
-    {/if}
-</nav>
-
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark navbar-static-top">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">Dr. Ticket M.D.</a>

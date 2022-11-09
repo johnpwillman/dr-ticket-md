@@ -3,7 +3,6 @@
     export let data;
     /** @type {import('./$types').ActionData} */
     export let form;
-    console.log(form);
 </script>
 
 <main class="form-signin w-100 m-auto">
