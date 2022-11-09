@@ -1,4 +1,5 @@
 /** @type {import('./$types').Actions} */
+import { redirect } from '@sveltejs/kit';
 
 let apiBase = 'http://127.0.0.1:8000/v1/';
 
@@ -28,7 +29,7 @@ export const actions = {
             message: text
         }
     },
-    login: async ({ request }) => {
+    login: async ({ request, cookies, setHeaders }) => {
         const data = await request.formData();
         const email = data.get('email');
         const password = data.get('password');
@@ -41,7 +42,27 @@ export const actions = {
             }
         });
 
-        console.log(response);
-        console.log(await response.json());
+        const text = await response.text();
+        //console.log(text);
+
+        if (!response.ok) {
+            //console.log( text ? JSON.parse(text) : {} ); //{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huQGV4YW1wbGUuY29tIiwiZXhwIjoxNjY3OTY4NDIxfQ.2raglaHLbS-atO_tbl3AIFCDxTmci1x64DfthuZvo40","token_type":"bearer"}
+
+            return {
+                action: "login",
+                success: response.ok,
+                message: text
+            }
+        }
+
+        cookies.set('jwt', JSON.parse(text).access_token, {
+            path: '/'
+        });
+        setHeaders({
+            "Authorization": "Bearer " + JSON.parse(text).access_token
+        });
+
+        throw redirect(303, '/');
+
     },
 };
