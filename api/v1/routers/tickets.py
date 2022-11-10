@@ -30,7 +30,7 @@ async def all_tickets(current_user: User = Depends(get_current_active_user)):
         ])
     else:
         res = db.fetch(query={"submitted_by": current_user.email})
-    all_items = sorted(res.items, key=lambda x: x['status'][-1] + str(x['created_at']), reverse=True)
+    all_items = sorted(res.items, key=lambda x: x['status'][-1] + str(x['created_at']).split('.')[0], reverse=True)
     return all_items
 
 @router.post("/", response_model=TicketOut)
@@ -56,7 +56,7 @@ async def get_ticket(key: str, current_user: User = Depends(get_current_active_u
     cdb = deta.Base("dr-ticket-md-comments")
     raw_comments = cdb.fetch(query={"ticket": key}).items
     comments: List[CommentOut] = list(map(lambda c: CommentOut(**c), raw_comments))
-    ticket.comments = comments
+    ticket.comments = sorted(comments, lambda c: c.created_at, reverse=True)
     return ticket
 
 
