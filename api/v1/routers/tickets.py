@@ -39,7 +39,7 @@ async def post_ticket(ticket: TicketIn, current_user: User = Depends(get_current
         )
         db = deta.Base("dr-ticket-md-tickets")
         db.put(ticket_in_db.dict())
-        TicketOut(**ticket_in_db.dict())
+        return TicketOut(**ticket_in_db.dict())
     except Exception as err:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
