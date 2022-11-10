@@ -1,4 +1,12 @@
 <script>
+    import { onMount } from 'svelte';
+    let md;
+    let textAreaVal='';
+
+    onMount(async () => {
+		md = new window.remarkable.Remarkable();
+	});
+
     /** @type {import('./$types').PageData} */
     export let data;
 
@@ -24,15 +32,24 @@
     }
 </script>
 
-<main>
-    <div class="container">
+<main class="container">
     <form method="POST" action="?/newComment">
     <div class="row mb-4 comment-form">
         <div class="col-md-8 comment-textarea">
             <h4>Subject: {data.ticket.subject}</h4>
             <div class="form mb-4">
-                <textarea class="form-control" name="body" rows="5" placeholder="Add a comment to this ticket."></textarea>
+                <textarea class="form-control" name="body" rows="5" placeholder="Add a comment to this ticket." bind:value={textAreaVal}></textarea>
             </div>
+            {#if md}
+            <div class="row">
+                <div class="col-md-3">
+                    <h4>Preview</h4>
+                </div>
+                <div class="col-md-9 markdown-preview">
+                    <p>{@html md.render(textAreaVal)}</p>
+                </div>
+            </div>
+            {/if}
         </div>
         <div class="col-md-4 comment-submit">
             <h4>Status</h4>
@@ -54,30 +71,32 @@
     <div class="col-md-8 ticket-comments">
         {#each data.comments as comment}
         <div class="row mb-2">
-            <div class="row">
-                <div class="col-md-3 pt-2 pb-2 text-center comment-info">
-                    {#await get_gravatar_image_url(comment.submitted_by, 48)}
-                        <p>...</p>
-                    {:then gravatar}
-                        <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="48" height="48" src="{gravatar}" alt="gravatar-img" />
-                    {:catch error}
-                        <p style="color: red">{error.message}</p>
-                    {/await}
-                    <br/>
-                    {comment.submitted_by}
-                    <br/><br/>
-                    {(new Date(comment.created_at)).toISOString().match(/(\d|-|:)+/g)[0]}
-                    <br/>
-                    {(new Date(comment.created_at)).toISOString().match(/(\d|-|:)+/g)[1]}
-                </div>
-                <div class="col-md-9 comment">
-                    <div class="d-flex flex-column comment-column">
-                        <div class="comment-item">
+            <div class="col-md-3 pt-2 pb-2 text-center comment-info">
+                {#await get_gravatar_image_url(comment.submitted_by, 48)}
+                    <p>...</p>
+                {:then gravatar}
+                    <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="48" height="48" src="{gravatar}" alt="gravatar-img" />
+                {:catch error}
+                    <p style="color: red">{error.message}</p>
+                {/await}
+                <br/>
+                {comment.submitted_by}
+                <br/><br/>
+                {(new Date(comment.created_at)).toISOString().match(/(\d|-|:)+/g)[0]}
+                <br/>
+                {(new Date(comment.created_at)).toISOString().match(/(\d|-|:)+/g)[1]}
+            </div>
+            <div class="col-md-9 comment">
+                <div class="d-flex flex-column comment-column">
+                    <div class="comment-item">
+                        {#if md}
+                            {@html md.render(comment.body)}
+                        {:else}
                             {comment.body}
-                        </div>
-                        <div class="mt-auto state-change comment-item">
-                            Ticket state set to: {comment.status.toUpperCase()}
-                        </div>
+                        {/if}
+                    </div>
+                    <div class="mt-auto state-change comment-item">
+                        Ticket state set to: {comment.status.toUpperCase()}
                     </div>
                 </div>
             </div>
@@ -100,13 +119,20 @@
                 {(new Date(data.ticket.created_at)).toISOString().replace('Z', '').split('T')[1]}
             </div>
             <div class="col-md-9 comment">
-                {data.ticket.body}
+                <div class="d-flex flex-column comment-column">
+                    <div class="comment-item">
+                        {#if md}
+                            {@html md.render(data.ticket.body)}
+                        {:else}
+                            {data.ticket.body}
+                        {/if}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-md-4 ticket-info">
 
-    </div>
     </div>
 
 </main>
@@ -126,6 +152,10 @@
 
     .comment-info {
         background-color: lightgray;
+    }
+    
+    .markdown-preview {
+        word-wrap: break-word;
     }
 
     .comment {
