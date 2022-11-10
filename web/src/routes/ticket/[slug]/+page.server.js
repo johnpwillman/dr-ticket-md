@@ -21,14 +21,12 @@ export async function load({ cookies, fetch, params }) {
         }
 
         const ticket = await response.json();
-        let comments = ticket.comments;
-        comments.sort((a, b)=> {return (new Date(a.created_at)).getTime() - (new Date(b.created_at)).getTime()});
         
         return {
             success: true,
             detail: ``,
             ticket: ticket,
-            comments: comments.reverse()
+            comments: ticket.comments
         }
     }
     return {
