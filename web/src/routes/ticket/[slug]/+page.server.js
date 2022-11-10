@@ -1,7 +1,9 @@
+/** @type {import('./$types').Actions} */
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ cookies, fetch, params }) {
 
-    let apiBase = 'http://127.0.0.1:8000/v1/';
+let apiBase = 'http://127.0.0.1:8000/v1/';
+
+export async function load({ cookies, fetch, params }) {
 
     let ticketKey = params.slug;
 
@@ -14,9 +16,8 @@ export async function load({ cookies, fetch, params }) {
 
         const ticket = await response.json();
         let comments = ticket.comments;
-        console.log(comments);
         comments.sort((a, b)=> {return (new Date(a.created_at)).getTime() - (new Date(b.created_at)).getTime()});
-        console.log(comments);
+
         return {
             success: true,
             detail: ``,
@@ -27,4 +28,32 @@ export async function load({ cookies, fetch, params }) {
     return {
         detail: "Please login to see your tickets."
     }
+}
+
+export const actions = {
+    newComment: async ({ request, cookies, params }) => {
+        const data = await request.formData();
+        const body = data.get('body');
+        const status = data.get('status');
+
+        const response = await fetch(apiBase + "tickets/" + params.slug + "/comments", {
+            method: "POST",
+            body: JSON.stringify({
+                body: body,
+                status: status
+            }),
+            headers: {
+                "Authorization": "Bearer " + cookies.get('jwt'),
+                "Content-Type": "application/json"
+            }
+        });
+
+        const text = await response.text();
+        //console.log( text ? JSON.parse(text) : {} );
+
+        return {
+            success: response.ok,
+            message: text
+        }
+    },
 }

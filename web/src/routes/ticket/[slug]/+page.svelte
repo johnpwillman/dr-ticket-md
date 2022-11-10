@@ -26,19 +26,19 @@
 
 <main>
     <div class="container">
-    <form>
+    <form method="POST" action="?/newComment">
     <div class="row mb-4 comment-form">
         <div class="col-md-8 comment-textarea">
             <h4>Subject: {data.ticket.subject}</h4>
             <div class="form mb-4">
-                <textarea class="form-control" rows="5" placeholder="Add a comment to this ticket."></textarea>
+                <textarea class="form-control" name="body" rows="5" placeholder="Add a comment to this ticket."></textarea>
             </div>
         </div>
         <div class="col-md-4 comment-submit">
             <h4>Status</h4>
             <div class="row">
                 <div class="col-md-6">
-                    <select class="form-select comment-submit-select" id="exampleSelect" value="{data.ticket.status}">
+                    <select class="form-select comment-submit-select" name="status" id="exampleSelect" value="{data.ticket.status}">
                         <option value="open">Open</option>
                         <option value="pending">With Customer</option>
                         <option value="closed">Closed</option>
@@ -63,6 +63,7 @@
                     {:catch error}
                         <p style="color: red">{error.message}</p>
                     {/await}
+                    <br/>
                     {comment.submitted_by}
                     <br/><br/>
                     {(new Date(comment.created_at)).toISOString().match(/(\d|-|:)+/g)[0]}
@@ -70,12 +71,14 @@
                     {(new Date(comment.created_at)).toISOString().match(/(\d|-|:)+/g)[1]}
                 </div>
                 <div class="col-md-9 comment">
-                    {comment.body}
-                </div>
-            </div>
-            <div class="row state-change">
-                <div class="col-md-12 alert alert-secondary">
-                        Ticket state set to: {comment.status.toUpperCase()}
+                    <div class="d-flex flex-column comment-column">
+                        <div class="comment-item">
+                            {comment.body}
+                        </div>
+                        <div class="mt-auto state-change comment-item">
+                            Ticket state set to: {comment.status.toUpperCase()}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -123,5 +126,21 @@
 
     .comment-info {
         background-color: lightgray;
+    }
+
+    .comment {
+        padding: 0 0 0 0;
+    }
+
+    .comment-column {
+        height: 100%;
+    }
+
+    .comment-item {
+        padding: 0 5px 0 5px;
+    }
+
+    .state-change {
+        background-color: #e2e2e2;
     }
 </style>
