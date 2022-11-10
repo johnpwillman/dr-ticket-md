@@ -1,3 +1,4 @@
+import { redirect } from '@sveltejs/kit';
 /** @type {import('./$types').Actions} */
 /** @type {import('./$types').PageServerLoad} */
 
@@ -13,6 +14,11 @@ export async function load({ cookies, fetch, params }) {
                 "Authorization": "Bearer " + cookies.get('jwt')
             }
         });
+
+        if (response.status === 401) {
+            //JWT Timed out
+            throw redirect(303, '/logout')
+        }
 
         const ticket = await response.json();
         let comments = ticket.comments;
