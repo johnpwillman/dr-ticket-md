@@ -24,7 +24,10 @@ deta = Deta(os.getenv("DETA_PROJECT_KEY"))
 async def all_tickets(current_user: User = Depends(get_current_active_user)):
     db = deta.Base("dr-ticket-md-tickets")
     if current_user.admin:
-        res = db.fetch(query={"status?ne": TicketStatus.CLOSED})
+        res = db.fetch(query=[
+            {"assigned_to": current_user.email},
+            {"assigned_to": None}
+        ])
     else:
         res = db.fetch(query={"submitted_by": current_user.email})
     all_items = res.items
@@ -76,8 +79,14 @@ async def post_comment(key: str, comment: CommentIn, current_user: User = Depend
             ticket=key,
             submitted_by=current_user.email
         )
+        ticket_changed = False
+        if not ticket_in_db.assigned_to and ticket_in_db.submitted_by != current_user.email:
+            ticket_in_db.assigned_to = current_user.email
+            ticket_changed = True
         if comment_in_db.status != ticket_in_db.status:
             ticket_in_db.status = comment_in_db.status
+            ticket_changed = True
+        if ticket_changed:
             tdb.put(ticket_in_db.dict())
         cdb = deta.Base("dr-ticket-md-comments")
         cdb.put(comment_in_db.dict())
