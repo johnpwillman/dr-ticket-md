@@ -21,7 +21,7 @@ export async function load({ cookies, fetch }) {
         return {
             success: true,
             detail: `${tickets.length} ticket(s)`,
-            tickets: tickets.sort(function(a, b){return a.created_at - b.created_at})
+            tickets: tickets
         }
     }
     return {
