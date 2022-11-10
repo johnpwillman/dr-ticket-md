@@ -73,10 +73,6 @@
     main {
         margin-top: 90px;
     }
-    .bg-purple {
-        background-color: #6f42c1;
-        /* background-color: #8540f5; */
-    }
 
     .bg-indigo-400 {
         background-color: #8540f5;
