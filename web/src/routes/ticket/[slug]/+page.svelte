@@ -62,7 +62,7 @@
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <button class="btn btn-primary">Submit</button>
+                    <button class="btn btn-secondary bg-indigo-400">Submit</button>
                 </div>
             </div>
         </div>
@@ -140,6 +140,11 @@
 <style>
     main {
         margin-top: 90px;
+    }
+
+    
+    .bg-indigo-400 {
+        background-color: #8540f5;
     }
 
     .comment-form {

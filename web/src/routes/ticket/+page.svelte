@@ -17,7 +17,7 @@
             <textarea name="body" class="form-control" id="exampleFormControlTextarea1" rows="5" placeholder="Describe the issue in detail"></textarea>
           </div>
         <div class="gap-2">
-            <button class="btn btn-lg btn-primary" type="submit">Submit Ticket</button>
+            <button class="btn btn-dark bg-indigo-400" type="submit">Submit Ticket</button>
         </div>
     </form>
 </main>
@@ -25,5 +25,9 @@
 <style>
     main {
         margin-top: 90px;
+    }
+
+    .bg-indigo-400 {
+        background-color: #8540f5;
     }
 </style>

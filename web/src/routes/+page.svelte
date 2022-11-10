@@ -25,7 +25,7 @@
 </script>
 
 <main class="container">
-    <div class="d-flex w-100 align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">
+    <div class="d-flex w-100 align-items-center p-3 my-3 text-white bg-indigo-400 rounded shadow-sm">
             <div class="lh-1">
                 <h1 class="h4 mb-0 text-white lh-1">Tickets</h1>
             </div>
@@ -41,7 +41,9 @@
       {#each data.tickets as ticket}
       <a class="no-underline" href="/ticket/{ticket.key}">
       <div class="d-flex text-muted pt-3">
-        <strong class="d-flex text-gray-dark mr-1em">{ticket.status}</strong>
+        <div class="ticket-status">
+            <strong class="d-flex text-gray-dark mr-1em">{ticket.status}</strong>
+        </div>
         {#await get_gravatar_image_url(ticket.submitted_by, 32)}
             <p>...</p>
         {:then gravatar}
@@ -73,6 +75,15 @@
     }
     .bg-purple {
         background-color: #6f42c1;
+        /* background-color: #8540f5; */
+    }
+
+    .bg-indigo-400 {
+        background-color: #8540f5;
+    }
+
+    .ticket-status {
+        width: 7em;
     }
 
     .ticket-subject {
