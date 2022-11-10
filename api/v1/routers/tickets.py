@@ -30,7 +30,7 @@ async def all_tickets(current_user: User = Depends(get_current_active_user)):
         ])
     else:
         res = db.fetch(query={"submitted_by": current_user.email})
-    all_items = sorted(res.items, key=lambda x: x['status'][-1] + x['created_at'], reverse=True)
+    all_items = sorted(res.items, key=lambda x: x['status'][-1] + str(x['created_at']), reverse=True)
     return all_items
 
 @router.post("/", response_model=TicketOut)
