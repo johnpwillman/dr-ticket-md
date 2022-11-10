@@ -25,12 +25,15 @@
 </script>
 
 <main class="container">
-    <div class="d-flex align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">
-      <!--<img class="me-3" src="/docs/5.2/assets/brand/bootstrap-logo-white.svg" alt="" width="48" height="38">-->
-      <div class="lh-1">
-        <h1 class="h4 mb-0 text-white lh-1">Tickets</h1>
-        <small>Since 2022</small>
-      </div>
+    <div class="d-flex w-100 align-items-center p-3 my-3 text-white bg-purple rounded shadow-sm">
+            <div class="lh-1">
+                <h1 class="h4 mb-0 text-white lh-1">Tickets</h1>
+            </div>
+            {#if data.success}
+            <div class="ms-auto">
+                <a class="btn btn-outline-light" href="/ticket">New Ticket</a>
+            </div>
+            {/if}
     </div>
     {#if data.success}
     <div class="my-3 p-3 bg-body rounded shadow-sm">
@@ -60,6 +63,7 @@
       {/each}
     </div>
     {:else}
+    <h3>{data.detail}</h3>
     {/if}
 </main>
 
