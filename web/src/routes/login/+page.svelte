@@ -1,34 +1,75 @@
 <script>
-    /** @type {import('./$types').ActionData} */
-    export let form;
+    // export let data
+    import {
+        afterNavigate,
+        beforeNavigate,
+        disableScrollHandling,
+        goto,
+        invalidate,
+        invalidateAll,
+        prefetch,
+        prefetchRoutes
+    } from '$app/navigation';
+
+    import Cookies from 'js-cookie'
+
+    let email
+    let password
+    let apiRoot = `http://127.0.0.1:8000/v1/`;
+    let result = {}
+    async function login() {
+        let resp = await fetch(apiRoot + "token/", {
+            method: "POST",
+            body: 'grant_type=password&username=' + email + '&password=' + password,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        let respJson = await resp.json()
+        result = {
+            success: resp.ok,
+            detail: JSON.stringify(respJson)
+        }
+        if (resp.ok) {
+            document.cookie = `jwt=${respJson.access_token}; path=/; max-age=${30 * 60};`;
+            Cookies.set('jwt', respJson.access_token, {
+                path: '/',
+                sameSite: 'strict'
+            })
+            await goto('/', {
+                invalidateAll: true
+            })
+        }
+    }
+    function register() {
+        console.log('register', email, password)
+    }
+
 </script>
 
 <main class="form-signin w-100 m-auto">
-    <form method="POST" action="?/login">
+    <form on:submit|preventDefault={login}>
         <h1 class="h3 mb-3 fw-normal">Login or create a new User Account</h1>
 
         <div class="form-floating">
-        <input name="email" type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+        <input name="email" bind:value="{email}" type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
         <label for="floatingInput">Email address</label>
         </div>
         <div class="form-floating">
-        <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+        <input name="password" bind:value="{password}" type="password" class="form-control" id="floatingPassword" placeholder="Password">
         <label for="floatingPassword">Password</label>
         </div>
         <div class="d-grid gap-2">
             <button class="btn btn-lg btn-primary" type="submit">Sign in</button>
-            <button class="btn btn-lg btn-secondary" formaction="?/register">Register</button>
+            <button class="btn btn-lg btn-secondary" on:click|preventDefault={register}>Register</button>
         </div>
     </form>
 </main>
 
-{#if form?.success}
-    <!-- this message is ephemeral; it exists because the page was rendered in
-        response to a form submission. it will vanish if the user reloads -->
-    <!--<p>Successfully logged in! Welcome back, {data.user.name}</p>-->
-    <p>The {form.action} action was successful. Please login.</p>
-{:else if form}
-    <p class="error">The {form.action} action was unsuccessful. {form.message}</p>
+{#if result.success}
+    <p>The action was successful.</p>
+{:else if result.detail}
+    <p class="error">The action was unsuccessful. {result.detail}</p>
 {/if}
 
 <style>

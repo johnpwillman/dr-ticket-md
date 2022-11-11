@@ -1,5 +1,4 @@
 <script>
-    /** @type {import('./$types').PageData} */
     export let data;
 
     async function md5 (string_to_hash) {

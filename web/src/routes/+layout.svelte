@@ -1,6 +1,13 @@
 <script>
-    /** @type {import('./$types').PageData} */
-    export let data;
+    export let data
+
+    import Cookies from 'js-cookie'
+
+    function logout() {
+      Cookies.remove('jwt')
+      Cookies.remove('user')
+      data.user = undefined
+    }
 </script>
 
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-indigo-400 navbar-static-top">
@@ -21,7 +28,7 @@
                 <a class="nav-link disabled" href="/users/me">{data.user.email}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/logout">Logout</a>
+                <a class="nav-link" href="/login" on:click={logout}>Logout</a>
             </li>
         {:else}
             <li class="nav-item">

@@ -1,15 +1,14 @@
 import { redirect } from '@sveltejs/kit';
+import Cookies from 'js-cookie'
 
-/** @type {import('./$types').PageLoad} */
-export async function load({ cookies, fetch }) {
+export async function load({ fetch }) {
 
-    let env = process.env.ENV;
-    let apiBase = process.env[`${env}_API_URL`];
+    let apiRoot = `http://127.0.0.1:8000/v1/`
 
-    if (cookies.get('jwt')) {
-        const response = await fetch(apiBase + 'tickets', {
+    if (Cookies.get('jwt')) {
+        const response = await fetch(apiRoot + 'tickets/', {
             headers: {
-                "Authorization": "Bearer " + cookies.get('jwt')
+                "Authorization": "Bearer " + Cookies.get('jwt')
             }
         });
 
