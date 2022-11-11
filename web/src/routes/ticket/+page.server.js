@@ -1,7 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 /** @type {import('./$types').Actions} */
 
-let apiBase = 'http://127.0.0.1:8000/v1/';
+let env = process.env.ENV;
+let apiBase = process.env[`${env}_API_URL`];
 
 export const actions = {
     newTicket: async ({ request, cookies }) => {

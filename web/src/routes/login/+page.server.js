@@ -1,7 +1,8 @@
 /** @type {import('./$types').Actions} */
 import { redirect } from '@sveltejs/kit';
 
-let apiBase = 'http://127.0.0.1:8000/v1/';
+let env = process.env.ENV;
+let apiBase = process.env[`${env}_API_URL`];
 
 export const actions = {
     register: async ({ request }) => {

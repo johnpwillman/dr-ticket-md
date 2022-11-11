@@ -3,7 +3,8 @@ import { redirect } from '@sveltejs/kit';
 /** @type {import('./$types').PageLoad} */
 export async function load({ cookies, fetch }) {
 
-    let apiBase = 'http://127.0.0.1:8000/v1/';
+    let env = process.env.ENV;
+    let apiBase = process.env[`${env}_API_URL`];
 
     if (cookies.get('jwt')) {
         const response = await fetch(apiBase + 'tickets', {
