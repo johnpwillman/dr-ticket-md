@@ -163,23 +163,4 @@
         background-color: lightgray;
     }
     
-    .markdown-preview {
-        word-wrap: break-word;
-    }
-
-    .comment {
-        padding: 0 0 0 0;
-    }
-
-    .comment-column {
-        height: 100%;
-    }
-
-    .comment-item {
-        padding: 0 5px 0 5px;
-    }
-
-    .state-change {
-        background-color: #e2e2e2;
-    }
 </style>
