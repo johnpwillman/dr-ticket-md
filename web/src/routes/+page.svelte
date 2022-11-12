@@ -1,25 +1,54 @@
 <script>
-    export let data;
+    import { onMount } from 'svelte'
+    import { goto } from '$app/navigation'
+    import Cookies from 'js-cookie'
+
+    onMount(async () => {
+        await get_my_tickets()
+    })
+
+    let apiRoot = `http://127.0.0.1:8000/v1/`
+
+    let tickets = undefined
+    async function get_my_tickets() {
+        if (Cookies.get('jwt')) {
+            const response = await fetch(apiRoot + 'tickets/', {
+                headers: {
+                    "Authorization": "Bearer " + Cookies.get('jwt')
+                }
+            })
+
+            if (response.status === 401) {
+                //JWT Timed out
+                Cookies.remove('jwt')
+                Cookies.remove('user')
+                await goto('/login', {
+                    invalidateAll: true
+                })
+            }
+
+            tickets = await response.json()
+        }
+    }
 
     async function md5 (string_to_hash) {
         let response = await fetch('https://api.hashify.net/hash/md5/hex', {
             method: "POST",
             body: string_to_hash
-        });
-        let resJson = await response.json();
-        return resJson.Digest;
+        })
+        let resJson = await response.json()
+        return resJson.Digest
     }
 
-    async function get_gravatar_image_url (email, size, default_image, allowed_rating, force_default)
-    {
-        email = typeof email !== 'undefined' ? email : 'john.doe@example.com';
-        size = (size >= 1 && size <= 2048) ? size : 80;
-        default_image = typeof default_image !== 'undefined' ? default_image : 'mm';
-        allowed_rating = typeof allowed_rating !== 'undefined' ? allowed_rating : 'g';
-        force_default = force_default === true ? 'y' : 'n';
-        let md5_email = await md5(email.toLowerCase().trim());
+    async function get_gravatar_image_url (email, size, default_image, allowed_rating, force_default) {
+        email = typeof email !== 'undefined' ? email : 'john.doe@example.com'
+        size = (size >= 1 && size <= 2048) ? size : 80
+        default_image = typeof default_image !== 'undefined' ? default_image : 'mm'
+        allowed_rating = typeof allowed_rating !== 'undefined' ? allowed_rating : 'g'
+        force_default = force_default === true ? 'y' : 'n'
+        let md5_email = await md5(email.toLowerCase().trim())
         
-        return ("https://secure.gravatar.com/avatar/" + md5_email + "?size=" + size + "&default=" + encodeURIComponent(default_image) + "&rating=" + allowed_rating + (force_default === 'y' ? "&forcedefault=" + force_default : ''));
+        return ("https://secure.gravatar.com/avatar/" + md5_email + "?size=" + size + "&default=" + encodeURIComponent(default_image) + "&rating=" + allowed_rating + (force_default === 'y' ? "&forcedefault=" + force_default : ''))
     }
 </script>
 
@@ -28,16 +57,16 @@
             <div class="lh-1">
                 <h1 class="h4 mb-0 text-white lh-1">Tickets</h1>
             </div>
-            {#if data.success}
+            {#if tickets}
             <div class="ms-auto">
                 <a class="btn btn-outline-light" href="/ticket">New Ticket</a>
             </div>
             {/if}
     </div>
-    {#if data.success}
+    {#if tickets}
     <div class="my-3 p-3 bg-body rounded shadow-sm">
       <h6 class="border-bottom pb-2 mb-0">Tickets List</h6>
-      {#each data.tickets as ticket}
+      {#each tickets as ticket}
       <a class="no-underline" href="/ticket/{ticket.key}">
       <div class="d-flex text-muted pt-3">
         <div class="ticket-status">
@@ -64,7 +93,7 @@
       {/each}
     </div>
     {:else}
-    <h3>{data.detail}</h3>
+    <h3>Log in to see tickets</h3>
     {/if}
 </main>
 

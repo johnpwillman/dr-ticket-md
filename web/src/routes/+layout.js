@@ -1,6 +1,9 @@
 import { redirect } from '@sveltejs/kit'
 import Cookies from 'js-cookie'
 
+// export const prerender = true;
+export const ssr = false
+
 export async function load({ fetch }) {
     console.log('loading layout')
     
@@ -12,7 +15,7 @@ export async function load({ fetch }) {
                 user: JSON.parse(Cookies.get('user'))
             }
         }
-        const response = await fetch(apiRoot + 'users/me/', {
+        const response = await fetch(apiRoot + 'users/me', {
             headers: {
                 "Authorization": "Bearer " + Cookies.get('jwt')
             }
@@ -20,7 +23,9 @@ export async function load({ fetch }) {
 
         if (response.status === 401) {
             //JWT Timed out
-            throw redirect(303, '/logout')
+            Cookies.remove('jwt')
+            Cookies.remove('user')
+            throw redirect(303, '/login')
         }
 
         const user = await response.json()

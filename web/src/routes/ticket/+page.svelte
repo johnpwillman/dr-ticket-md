@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte'
     import Cookies from 'js-cookie'
-    import { goto } from '$app/navigation';
+    import { goto } from '$app/navigation'
 
     let md
 
@@ -10,7 +10,7 @@
 	});
 
     let subject
-    let body
+    let body = ''
     let apiRoot = `http://127.0.0.1:8000/v1/`;
     async function newTicket() {
         const status = 'open';
@@ -27,6 +27,15 @@
                 "Content-Type": "application/json"
             }
         });
+
+        if (response.status === 401) {
+            //JWT Timed out
+            Cookies.remove('jwt')
+            Cookies.remove('user')
+            await goto('/login', {
+                invalidateAll: true
+            })
+        }
 
         if (response.ok) {
             const ticket = await response.json();

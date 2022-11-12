@@ -1,14 +1,72 @@
 <script>
-    import { onMount } from 'svelte';
-    let md;
-    let textAreaVal='';
+    export let data;
 
+    import { onMount } from 'svelte'
+    import { goto } from '$app/navigation'
+    import Cookies from 'js-cookie'
+
+    let md
+    let ticket
+    let status
     onMount(async () => {
 		md = new window.remarkable.Remarkable();
-	});
+        await getTicket()
+        status = ticket.status
+	})
 
-    /** @type {import('./$types').PageData} */
-    export let data;
+    let body = ''
+    let apiRoot = `http://127.0.0.1:8000/v1/`
+
+    async function getTicket() {
+        if (Cookies.get('jwt')) {
+            const response = await fetch(apiRoot + 'tickets/' + data.slug, {
+                headers: {
+                    "Authorization": "Bearer " + Cookies.get('jwt')
+                }
+            })
+
+            if (response.status === 401) {
+                //JWT Timed out
+                Cookies.remove('jwt')
+                Cookies.remove('user')
+                await goto('/login', {
+                    invalidateAll: true
+                })
+            }
+
+            ticket = await response.json()
+        }
+    }
+
+    async function newComment() {
+        console.log(body, status)
+        const response = await fetch(apiRoot + "tickets/" + ticket.key + "/comments", {
+            method: "POST",
+            body: JSON.stringify({
+                body: body,
+                status: status
+            }),
+            headers: {
+                "Authorization": "Bearer " + Cookies.get('jwt'),
+                "Content-Type": "application/json"
+            }
+        })
+
+        if (response.status === 401) {
+            //JWT Timed out
+            Cookies.remove('jwt')
+            Cookies.remove('user')
+            await goto('/login', {
+                invalidateAll: true
+            })
+        }
+
+        const text = await response.text()
+        //console.log( text ? JSON.parse(text) : {} );
+
+        await getTicket()
+        body = ''
+    }
 
     async function md5 (string_to_hash) {
         let response = await fetch('https://api.hashify.net/hash/md5/hex', {
@@ -33,18 +91,19 @@
 </script>
 
 <main class="container">
-    <form method="POST" action="?/newComment">
+    {#if ticket}
+    <form on:submit|preventDefault={newComment}>
     <div class="row mb-4 comment-form">
         <div class="col-md-8 comment-textarea">
             <div class="card">
-                <h4 class="card-header">Ticket: "{data.ticket.subject}"</h4>
+                <h4 class="card-header">Ticket: "{ticket.subject}"</h4>
                 <div class="card-body">
-                    <textarea class="form-control" name="body" rows="5" placeholder="Add a comment to this ticket." bind:value={textAreaVal}></textarea>
+                    <textarea class="form-control" name="body" rows="5" placeholder="Add a comment to this ticket." bind:value={body}></textarea>
                 </div>
                 {#if md}
                 <div class="card-footer">
                     <p><strong>Preview:</strong></p>
-                    <p>{@html md.render(textAreaVal)}</p>
+                    <p>{@html md.render(body)}</p>
                 </div>
                 {/if}
                 
@@ -56,7 +115,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-8">
-                            <select class="form-select comment-submit-select" name="status" id="exampleSelect" value="{data.ticket.status}">
+                            <select bind:value="{status}" class="form-select comment-submit-select" name="status" id="exampleSelect">
                                 <option value="open">Open</option>
                                 <option value="pending">With Customer</option>
                                 <option value="closed">Closed</option>
@@ -73,7 +132,7 @@
     </form>
     <div class="row">
         <div class="col-md-8 ticket-comments">
-            {#each data.comments as comment}
+            {#each ticket.comments as comment}
             <div class="card mb-3">
                 <div class="row g-0">
                     <div class="col-md-3 pt-2 pb-2 text-center comment-info">
@@ -109,7 +168,7 @@
             <div class="card mb-3">
                 <div class="row g-0">
                     <div class="col-md-3 pt-2 pb-2 text-center comment-info">
-                        {#await get_gravatar_image_url(data.ticket.submitted_by, 48)}
+                        {#await get_gravatar_image_url(ticket.submitted_by, 48)}
                             <p>...</p>
                         {:then gravatar}
                             <img class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="48" height="48" src="{gravatar}" alt="gravatar-img" />
@@ -117,21 +176,21 @@
                             <p style="color: red">{error.message}</p>
                         {/await}
                         <br/>
-                        {data.ticket.submitted_by}
+                        {ticket.submitted_by}
                         <br/><br/>
-                        {(new Date(data.ticket.created_at)).toISOString().match(/(\d|-|:)+/g)[0]}
+                        {(new Date(ticket.created_at)).toISOString().match(/(\d|-|:)+/g)[0]}
                         <br/>
-                        {(new Date(data.ticket.created_at)).toISOString().match(/(\d|-|:)+/g)[1]}
+                        {(new Date(ticket.created_at)).toISOString().match(/(\d|-|:)+/g)[1]}
                     </div>
                     <div class="col-md-9">
                         <h5 class="card-header">
-                            {data.ticket.subject}
+                            {ticket.subject}
                         </h5>
                         <div class="card-body">
                             {#if md}
-                                <p>{@html md.render(data.ticket.body)}</p>
+                                <p>{@html md.render(ticket.body)}</p>
                             {:else}
-                                <p>{data.ticket.body}</p>
+                                <p>{ticket.body}</p>
                             {/if}
                         </div>
                     </div>
@@ -142,7 +201,7 @@
     <div class="col-md-4 ticket-info">
 
     </div>
-
+    {/if}
 </main>
 
 <style>
