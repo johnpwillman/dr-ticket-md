@@ -1,13 +1,20 @@
 <script>
-    export let data
+  import { page } from '$app/stores';
+  import Cookies from 'js-cookie'
 
-    import Cookies from 'js-cookie'
+  let user
+  
+  $: retrieveUser($page.url.pathname)
+  function retrieveUser(somepath) {
+    let userCookie = Cookies.get('user')
+    user = userCookie ? JSON.parse(userCookie) : undefined
+  }
 
-    function logout() {
-      Cookies.remove('jwt')
-      Cookies.remove('user')
-      data.user = undefined
-    }
+  function logout() {
+    Cookies.remove('jwt')
+    Cookies.remove('user')
+    user = undefined
+  }
 </script>
 
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-indigo-400 navbar-static-top">
@@ -23,9 +30,9 @@
         </li>
       </ul>
       <ul class="navbar-nav mb-2 mb-md-0">
-        {#if data.user}
+        {#if user}
             <li class="nav-item">
-                <a class="nav-link disabled" href="/users/me">{data.user.email}</a>
+                <a class="nav-link disabled" href="/users/me">{user.email}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/login" on:click={logout}>Logout</a>

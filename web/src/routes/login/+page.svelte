@@ -18,7 +18,7 @@
     let apiRoot = `http://127.0.0.1:8000/v1/`;
     let result = {}
     async function login() {
-        let resp = await fetch(apiRoot + "token/", {
+        const resp = await fetch(apiRoot + "token/", {
             method: "POST",
             body: 'grant_type=password&username=' + email + '&password=' + password,
             headers: {
@@ -31,15 +31,26 @@
             detail: JSON.stringify(respJson)
         }
         if (resp.ok) {
-            document.cookie = `jwt=${respJson.access_token}; path=/; max-age=${30 * 60};`;
             Cookies.set('jwt', respJson.access_token, {
                 path: '/',
                 sameSite: 'strict'
             })
-            await goto('/', {
-                invalidateAll: true
+        }
+        const response = await fetch(apiRoot + 'users/me', {
+            headers: {
+                "Authorization": "Bearer " + Cookies.get('jwt')
+            }
+        })
+        let responseJson = await response.json()
+        if (response.ok) {
+            Cookies.set('user', JSON.stringify(responseJson), {
+                path: '/',
+                sameSite: 'strict'
             })
         }
+        await goto('/', {
+            invalidateAll: true
+        })
     }
     function register() {
         console.log('register', email, password)

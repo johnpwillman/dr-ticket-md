@@ -3,6 +3,8 @@
     import { goto } from '$app/navigation'
     import Cookies from 'js-cookie'
 
+    let data
+
     onMount(async () => {
         await get_my_tickets()
     })
