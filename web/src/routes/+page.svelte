@@ -2,14 +2,18 @@
     import { onMount } from 'svelte'
     import { goto } from '$app/navigation'
     import Cookies from 'js-cookie'
+    import {
+        PUBLIC_ENV,
+        PUBLIC_DEV_API_ROOT,
+        PUBLIC_API_ROOT
+    } from '$env/static/public';
+    let apiRoot = PUBLIC_ENV == 'DEV' ? PUBLIC_DEV_API_ROOT : PUBLIC_API_ROOT
 
     let data
 
     onMount(async () => {
         await get_my_tickets()
     })
-
-    let apiRoot = `http://127.0.0.1:8000/v1/`
 
     let tickets = undefined
     async function get_my_tickets() {

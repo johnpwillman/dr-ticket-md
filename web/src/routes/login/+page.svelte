@@ -1,21 +1,16 @@
 <script>
     // export let data
-    import {
-        afterNavigate,
-        beforeNavigate,
-        disableScrollHandling,
-        goto,
-        invalidate,
-        invalidateAll,
-        prefetch,
-        prefetchRoutes
-    } from '$app/navigation';
-
+    import { goto } from '$app/navigation';
     import Cookies from 'js-cookie'
+    import {
+        PUBLIC_ENV,
+        PUBLIC_DEV_API_ROOT,
+        PUBLIC_API_ROOT
+    } from '$env/static/public';
+    let apiRoot = PUBLIC_ENV == 'DEV' ? PUBLIC_DEV_API_ROOT : PUBLIC_API_ROOT
 
     let email
     let password
-    let apiRoot = `http://127.0.0.1:8000/v1/`;
     let result = {}
     async function login() {
         const resp = await fetch(apiRoot + "token/", {
