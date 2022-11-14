@@ -15,16 +15,12 @@
     import TicketCommentItem from './TicketCommentItem.svelte';
 
     let md
-    let ticket
-    let status
     onMount(async () => {
 		md = new window.remarkable.Remarkable();
-        await getTicket()
-        status = ticket.status
 	})
 
     let body = ''
-
+    let status
     async function getTicket() {
         if (Cookies.get('jwt')) {
             const response = await fetch(apiRoot + 'tickets/' + data.slug, {
@@ -42,12 +38,13 @@
                 })
             }
 
-            ticket = await response.json()
+            let ticket = await response.json()
+            status = ticket.status
+            return ticket
         }
     }
 
     async function newComment() {
-        console.log(body, status)
         const response = await fetch(apiRoot + "tickets/" + ticket.key + "/comments", {
             method: "POST",
             body: JSON.stringify({
@@ -78,57 +75,60 @@
 </script>
 
 <main class="container">
-    {#if ticket}
-    <form on:submit|preventDefault={newComment}>
-    <div class="row mb-4 comment-form">
-        <div class="col-md-8 comment-textarea">
-            <div class="card">
-                <h4 class="card-header">Ticket: "{ticket.subject}"</h4>
-                <div class="card-body">
-                    <textarea class="form-control" name="body" rows="5" placeholder="Add a comment to this ticket." bind:value={body}></textarea>
+    {#await getTicket()}
+        <h4>..Retrieving ticket</h4>
+    {:then ticket} 
+        <form on:submit|preventDefault={newComment}>
+        <div class="row mb-4 comment-form">
+            <div class="col-md-8 comment-textarea">
+                <div class="card">
+                    <h4 class="card-header">Ticket: "{ticket.subject}"</h4>
+                    <div class="card-body">
+                        <textarea class="form-control" name="body" rows="5" placeholder="Add a comment to this ticket." bind:value={body}></textarea>
+                    </div>
+                    {#if md}
+                    <div class="card-footer">
+                        <p><strong>Preview:</strong></p>
+                        <p>{@html md.render(body)}</p>
+                    </div>
+                    {/if}
+                    
                 </div>
-                {#if md}
-                <div class="card-footer">
-                    <p><strong>Preview:</strong></p>
-                    <p>{@html md.render(body)}</p>
-                </div>
-                {/if}
-                
             </div>
-        </div>
-        <div class="col-md-4 comment-submit">
-            <div class="card">
-                <h4 class="card-header">Update</h4>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <select bind:value="{status}" class="form-select comment-submit-select" name="status" id="exampleSelect">
-                                <option value="open">Open</option>
-                                <option value="pending">With Customer</option>
-                                <option value="closed">Closed</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-secondary bg-indigo-400">Submit</button>
+            <div class="col-md-4 comment-submit">
+                <div class="card">
+                    <h4 class="card-header">Update</h4>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <select bind:value="{status}" class="form-select comment-submit-select" name="status" id="exampleSelect">
+                                    <option value="open">Open</option>
+                                    <option value="pending">With Customer</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-secondary bg-indigo-400">Submit</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    </form>
-    <div class="row">
-        <div class="col-md-8 ticket-comments">
-            {#each ticket.comments as comment}
-            <CommentItem comment={comment} md={md} />
-            {/each}
-            <TicketCommentItem ticket={ticket} md={md} />
+        </form>
+        <div class="row">
+            <div class="col-md-8 ticket-comments">
+                {#each ticket.comments as comment}
+                <CommentItem comment={comment} md={md} />
+                {/each}
+                <TicketCommentItem ticket={ticket} md={md} />
+            </div>
         </div>
-    </div>
-    <div class="col-md-4 ticket-info">
+        <div class="col-md-4 ticket-info">
 
-    </div>
-    {/if}
+        </div>
+    {/await}
+    
 </main>
 
 <style>
