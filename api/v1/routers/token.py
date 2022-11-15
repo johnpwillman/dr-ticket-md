@@ -4,8 +4,6 @@ from datetime import timedelta
 from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from deta import Deta
-
 from ..typedefs.oauth import Token
 from ..utils.auth import authenticate_user, create_access_token
 
@@ -13,8 +11,6 @@ router = APIRouter(
     prefix='/v1/token',
     tags=['v1', 'v1/token']
 )
-
-deta = Deta(os.getenv("DETA_PROJECT_KEY"))
 
 ###############################################################################
 # USER AUTHENTICATION

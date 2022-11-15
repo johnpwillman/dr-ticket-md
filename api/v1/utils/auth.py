@@ -5,14 +5,12 @@ from datetime import datetime, timedelta
 from fastapi import status, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
-from deta import Deta
+from deta import Base
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from ..typedefs.users import User, UserInDB
 from ..typedefs.oauth import TokenData
-
-deta = Deta(os.getenv("DETA_PROJECT_KEY"))
 
 
 ###############################################################################
@@ -36,7 +34,7 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 def get_user(username: str):
-    db = deta.Base("dr-ticket-md-users")
+    db = Base("dr-ticket-md-users")
     res = db.fetch(query={"email": username})
     if res.count == 1:
         return UserInDB(**res.items[0])

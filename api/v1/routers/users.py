@@ -2,7 +2,7 @@ import os
 
 from fastapi import APIRouter, status, Depends, HTTPException
 
-from deta import Deta
+from deta import Base
 
 from ..typedefs.users import Signup, User, UserInDB
 from ..utils.auth import get_password_hash, get_current_active_user
@@ -12,15 +12,13 @@ router = APIRouter(
     tags=['v1', 'v1/users']
 )
 
-deta = Deta(os.getenv("DETA_PROJECT_KEY"))
-
 ###############################################################################
 # USER ADMINISTRATION
 ###############################################################################
 
 @router.post("/")
 async def signup(signup: Signup):
-    db = deta.Base("dr-ticket-md-users")
+    db = Base("dr-ticket-md-users")
     res = db.fetch(query={"email": signup.email})
     if res.count > 0:
         raise HTTPException(

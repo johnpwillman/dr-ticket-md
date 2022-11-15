@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import APIRouter, status, Depends, HTTPException
 
-from deta import Deta
+from deta import Base
 
 from ..typedefs.tickets import TicketIn, TicketStatus, TicketInDB, TicketOut, CommentIn, CommentInDB, CommentOut
 from ..typedefs.users import User
@@ -14,15 +14,13 @@ router = APIRouter(
     tags=['v1', 'v1/tickets']
 )
 
-deta = Deta(os.getenv("DETA_PROJECT_KEY"))
-
 ###############################################################################
 # TICKETS AND COMMENTS
 ###############################################################################
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def all_tickets(current_user: User = Depends(get_current_active_user)):
-    db = deta.Base("dr-ticket-md-tickets")
+    db = Base("dr-ticket-md-tickets")
     if current_user.admin:
         res = db.fetch(query=[
             {"assigned_to": current_user.email},
@@ -40,7 +38,7 @@ async def post_ticket(ticket: TicketIn, current_user: User = Depends(get_current
             **ticket.dict(),
             submitted_by=current_user.email
         )
-        db = deta.Base("dr-ticket-md-tickets")
+        db = Base("dr-ticket-md-tickets")
         db.put(ticket_in_db.dict())
         return TicketOut(**ticket_in_db.dict())
     except Exception as err:
@@ -51,9 +49,9 @@ async def post_ticket(ticket: TicketIn, current_user: User = Depends(get_current
 
 @router.get("/{key}", response_model=TicketOut)
 async def get_ticket(key: str, current_user: User = Depends(get_current_active_user)):
-    tdb = deta.Base("dr-ticket-md-tickets")
+    tdb = Base("dr-ticket-md-tickets")
     ticket = TicketOut(**tdb.get(key))
-    cdb = deta.Base("dr-ticket-md-comments")
+    cdb = Base("dr-ticket-md-comments")
     raw_comments = cdb.fetch(query={"ticket": key}).items
     comments: List[CommentOut] = list(map(lambda c: CommentOut(**c), raw_comments))
     ticket.comments = sorted(comments, key=lambda c: c.created_at, reverse=True)
@@ -63,7 +61,7 @@ async def get_ticket(key: str, current_user: User = Depends(get_current_active_u
 @router.delete("/{key}")
 async def delete_ticket(key: str, current_user: User = Depends(get_current_active_user)):
     if current_user.admin:
-        db = deta.Base("dr-ticket-md-tickets")
+        db = Base("dr-ticket-md-tickets")
         db.delete(key)
         return {"message": "ticket deleted"}
 
@@ -72,7 +70,7 @@ async def delete_ticket(key: str, current_user: User = Depends(get_current_activ
 @router.post("/{key}/comments", response_model=CommentOut)
 async def post_comment(key: str, comment: CommentIn, current_user: User = Depends(get_current_active_user)):
     try:
-        tdb = deta.Base("dr-ticket-md-tickets")
+        tdb = Base("dr-ticket-md-tickets")
         ticket_in_db = TicketInDB(**tdb.get(key))
         comment_in_db = CommentInDB(
             **comment.dict(),
@@ -88,7 +86,7 @@ async def post_comment(key: str, comment: CommentIn, current_user: User = Depend
             ticket_changed = True
         if ticket_changed:
             tdb.put(ticket_in_db.dict())
-        cdb = deta.Base("dr-ticket-md-comments")
+        cdb = Base("dr-ticket-md-comments")
         cdb.put(comment_in_db.dict())
         return CommentOut(**comment_in_db.dict())
     except Exception as err:
