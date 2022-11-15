@@ -5,13 +5,13 @@
     "env": [
         {
             "key": "SECRET_KEY",
-            "description": "Used for encrypting passwords. DO NOT USE THE DEFAULT VALUE. Run `openssl rand -hex 32` to create a new one.",
+            "description": "Used for encrypting passwords. DO NOT USE THE DEFAULT VALUE. Run `openssl rand -hex 32` in the terminal to create a new one.",
             "value": "9739606c1b550a103a35818ba8cbfc75c14b07951deb3324390930ad1627834c",
             "required": true 
         },
         {
             "key": "ACCESS_TOKEN_EXPIRE_MINUTES",
-            "description": "Number of minutes before access to API expires.",
+            "description": "Number of minutes before access to API expires. (Max: 30)",
             "value": "30",
             "required": false 
         }
