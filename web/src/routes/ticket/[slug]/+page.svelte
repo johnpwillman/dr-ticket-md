@@ -20,6 +20,7 @@
 	})
 
     let body = ''
+    let ticket
     let status
     async function getTicket() {
         if (Cookies.get('jwt')) {
@@ -38,7 +39,7 @@
                 })
             }
 
-            let ticket = await response.json()
+            ticket = await response.json()
             status = ticket.status
             return ticket
         }
@@ -66,9 +67,6 @@
             })
         }
 
-        const text = await response.text()
-        //console.log( text ? JSON.parse(text) : {} );
-
         await getTicket()
         body = ''
     }
@@ -77,7 +75,7 @@
 <main class="container">
     {#await getTicket()}
         <h4>..Retrieving ticket</h4>
-    {:then ticket} 
+    {:then} 
         <form on:submit|preventDefault={newComment}>
         <div class="row mb-4 comment-form">
             <div class="col-md-8 comment-textarea">
