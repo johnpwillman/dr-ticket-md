@@ -7,4 +7,10 @@ web/.svelte-kit
 web/.vite
 web/src
 web/static
+web/package*
+web/.npmrc
+web/eslint*
+web/svelte*
+web/vite*
+web/README.md
 !web/build
