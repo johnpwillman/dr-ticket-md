@@ -1,5 +1,5 @@
 {
-    "name": "Dr. Ticket M.D.",
+    "name": "dr-ticket-md",
     "description": "Simple management system for submitting, and addressing help tickets.", 
     "runtime": "python3.9",
     "env": [
