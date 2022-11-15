@@ -25,11 +25,12 @@ async def signup(signup: Signup):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User already exists"
         )
-
+    admins = db.fetch(query={"admin": True}, limit=1)
     hashed_password = get_password_hash(signup.password)
     user = UserInDB(
         email=signup.email,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        admin=admins.count==0
     )
     db.put(user.dict())
     return {"message": "User created"}

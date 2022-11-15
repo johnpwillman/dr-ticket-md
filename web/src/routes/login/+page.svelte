@@ -42,13 +42,26 @@
                 path: '/',
                 sameSite: 'strict'
             })
+            await goto('/')
         }
-        await goto('/', {
-            invalidateAll: true
-        })
     }
-    function register() {
+    async function register() {
         console.log('register', email, password)
+        const response = await fetch(apiRoot + "users/", {
+            method: "POST",
+            body: JSON.stringify({
+                email,
+                password
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        let responseJson = await response.json()
+        result = {
+            success: response.ok,
+            detail: response.ok ? "Please login." : JSON.stringify(responseJson)
+        }
     }
 
 </script>
@@ -73,7 +86,7 @@
 </main>
 
 {#if result.success}
-    <p>The action was successful.</p>
+    <p>The action was successful. {result.detail}</p>
 {:else if result.detail}
     <p class="error">The action was unsuccessful. {result.detail}</p>
 {/if}
