@@ -24,6 +24,7 @@ async def all_tickets(current_user: User = Depends(get_current_active_user)):
     if current_user.admin:
         res = db.fetch(query=[
             {"assigned_to": current_user.email},
+            {"submitted_by": current_user.email},
             {"assigned_to": None}
         ])
     else:

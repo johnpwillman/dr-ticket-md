@@ -16,7 +16,7 @@ router = APIRouter(
 # USER ADMINISTRATION
 ###############################################################################
 
-@router.get("/", response_model=List(User))
+@router.get("/", response_model=List[User])
 async def all_users(current_user: User = Depends(get_current_active_user)):
     if not current_user.admin:
         raise HTTPException(
@@ -25,7 +25,7 @@ async def all_users(current_user: User = Depends(get_current_active_user)):
         )
     db = Base("dr-ticket-md-users")
     res = db.fetch()
-    all_users: List(User) = res.items
+    all_users: List[User] = res.items
     while res.last:
         res = db.fetch(last=res.last)
         all_users.append(res.items)
@@ -51,26 +51,29 @@ async def signup(signup: Signup):
     return {"message": "User created"}
 
 @router.patch("/{key}", response_model=User)
-async def edit_user(key: str, user_patch: User, current_user: User = Depends(get_current_active_user)):
+async def edit_user(key: str, user: User, current_user: User = Depends(get_current_active_user)):
     if not current_user.admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User lacks permission for this route."
         )
-    if not key == user_patch.key:
+    if not key == user.key:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Key from path does not match user being patched."
         )
-    db = Base("dr-ticket-md-users")
     try:
-        res = db.update(user_patch.dict(), key)
+        db = Base("dr-ticket-md-users")
+        old_dict = user.dict()
+        #key 'key' cannot be in update dict
+        new_dict = {key: old_dict[key] for key in old_dict if key != 'key'}
+        res = db.update(new_dict, key)
     except Exception as err:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="DB Error when updating user."
         )
-    return user_patch
+    return user
 
 @router.get("/me", response_model=User)
 async def my_user(current_user: User = Depends(get_current_active_user)):

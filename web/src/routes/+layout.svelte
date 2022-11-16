@@ -31,6 +31,11 @@
       </ul>
       <ul class="navbar-nav mb-2 mb-md-0">
         {#if user}
+            {#if user.admin}
+            <li class="nav-item">
+                <a class="nav-link" href="/users">Users Admin</a>
+            </li>
+            {/if}
             <li class="nav-item">
                 <a class="nav-link disabled" href="/users/me">{user.email}</a>
             </li>
