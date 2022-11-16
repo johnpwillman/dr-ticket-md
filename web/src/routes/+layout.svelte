@@ -11,10 +11,11 @@
 
   let app_name = "Dr. Ticket M.D."
   onMount(async () => {
-		const response = await fetch(apiRoot + 'app/name')
-    let text = await response.text()
+		const response = await fetch(apiRoot + 'app/')
+
     if (response.ok) {
-      app_name = text
+      let responseJson = await response.json()
+      app_name = responseJson.name
     }
 	});
 

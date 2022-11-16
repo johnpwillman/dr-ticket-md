@@ -11,6 +11,8 @@ router = APIRouter(
 # App Info
 ###############################################################################
 
-@router.get("/name", status_code=status.HTTP_200_OK)
-async def app_name():
-    return os.getenv('APP_NAME', 'Dr. Ticket M.D.')
+@router.get("/", status_code=status.HTTP_200_OK)
+async def get_app():
+    return {
+        "name": os.getenv('APP_NAME', 'Dr. Ticket M.D.')
+    }
