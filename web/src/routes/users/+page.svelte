@@ -87,7 +87,7 @@
                 </td>
                 <td class="text-center">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="disabled" checked="{user.disabled}">
+                        <input class="form-check-input" type="checkbox" name="disabled" bind:checked="{user.disabled}">
                         Disabled
                     </div>
                 </td>
