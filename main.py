@@ -35,17 +35,9 @@ app.mount("/static", StaticFiles(directory="web/build/static"), name="static")
 templates = Jinja2Templates(directory="web/build")
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
 @app.get("/login", response_class=HTMLResponse)
-async def login(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
+@app.get("/users", response_class=HTMLResponse)
 @app.get("/ticket", response_class=HTMLResponse)
-async def new_ticket(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
 @app.get("/ticket/{id}", response_class=HTMLResponse)
-async def ticket(request: Request):
+async def forward_route(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
