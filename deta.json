@@ -4,6 +4,12 @@
     "runtime": "python3.9",
     "env": [
         {
+            "key": "APP_NAME",
+            "description": "The name of your app on display for users.",
+            "value": "Dr. Ticket M.D.",
+            "required": true 
+        },
+        {
             "key": "SECRET_KEY",
             "description": "Used for encrypting passwords. DO NOT USE THE DEFAULT VALUE. Run `openssl rand -hex 32` in the terminal to create a new one.",
             "value": "9739606c1b550a103a35818ba8cbfc75c14b07951deb3324390930ad1627834c",

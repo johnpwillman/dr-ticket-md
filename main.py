@@ -10,6 +10,7 @@ origins = [
 ]
 
 from api.v1.routers import (
+        app as v1_app,
         token as v1_token, 
         users as v1_users, 
         tickets as v1_tickets
@@ -25,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(v1_app.router)
 app.include_router(v1_token.router)
 app.include_router(v1_users.router)
 app.include_router(v1_tickets.router)
