@@ -8,7 +8,10 @@
     } from '$env/static/public';
     let apiRoot = PUBLIC_ENV == 'DEV' ? PUBLIC_DEV_API_ROOT : PUBLIC_API_ROOT
 
-    let users
+    let users = []
+    let search = ""
+
+    $: filteredUsers = users.filter(user => user.email.includes(search))
 
     async function getUsers() {
         let userCookie = Cookies.get('user')
@@ -63,7 +66,11 @@
 <main class="container">
     {#await getUsers()}
         <p>Retrieving users</p>
-    {:then} 
+    {:then}
+    <div class="mx-auto col-md-3 pb-4">
+        <h3 class="text-center">Registered Users</h3>
+        <input class="form-control" bind:value="{search}" placeholder="Search by email" />
+    </div>
     <table class="mx-auto user-table">
         <thead>
             <tr>
@@ -74,7 +81,7 @@
             </tr>
         </thead>
         <tbody>
-            {#each users as user}
+            {#each filteredUsers as user}
             <tr>
                 <td>
                     {user.email}
