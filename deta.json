@@ -20,6 +20,24 @@
             "description": "Number of minutes before access to API expires. (Max: 30)",
             "value": "30",
             "required": false 
+        },
+        {
+            "key": "MAILJET_API_KEY",
+            "description": "Notify ticket stakeholders via email when a ticket is updated. Visit https://app.mailjet.com/signup to create a free account and get the API KEY and SECRET KEY necessary for this feature.",
+            "value": "",
+            "required": false 
+        },
+        {
+            "key": "MAILJET_SECRET_KEY",
+            "description": "Notify ticket stakeholders via email when a ticket is updated. Visit https://app.mailjet.com/signup to create a free account and get the API KEY and SECRET KEY necessary for this feature.",
+            "value": "",
+            "required": false 
+        },
+        {
+            "key": "VERIFIED_SENDER_EMAIL",
+            "description": "The email address verified with MailJet for sending ticket update emails from.",
+            "value": "",
+            "required": false 
         }
     ]
 }

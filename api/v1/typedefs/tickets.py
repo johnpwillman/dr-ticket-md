@@ -20,6 +20,7 @@ class TicketInDB(TicketIn):
     submitted_by: str
     assigned_to: Union[str, None] = None
     created_at: float = None
+    url: str = None
 
     @validator("key", pre=True, always=True)
     def set_key(cls, key):

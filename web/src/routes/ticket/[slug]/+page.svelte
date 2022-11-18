@@ -43,6 +43,9 @@
             status = ticket.status
             return ticket
         }
+        await goto('/login', {
+            invalidateAll: true
+        })
     }
 
     async function newComment() {
