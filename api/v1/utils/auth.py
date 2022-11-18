@@ -1,5 +1,6 @@
 import os
-from typing import Union
+import random
+from typing import Union, List
 from datetime import datetime, timedelta
 
 from fastapi import status, Depends, HTTPException
@@ -83,3 +84,26 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
             detail="Inactive user"
         )
     return current_user
+
+async def get_current_active_admin(current_user: User = Depends(get_current_active_user)):
+    if not current_user.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User lacks necessary permissions."
+        )
+    return current_user
+
+def get_admins():
+    db = Base("dr-ticket-md-users")
+    res = db.fetch(query={
+        "admin": True,
+        "disabled": False
+    })
+    admins: List[User] = list(map(lambda admin: User(**admin), res.items))
+    return admins
+
+def get_random_admin():
+    admins = get_admins()
+    rand_index = random.randint(0, len(admins) - 1)
+    rand_admin: User = admins[rand_index]
+    return rand_admin

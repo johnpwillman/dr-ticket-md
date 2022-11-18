@@ -33,6 +33,7 @@ class TicketInDB(TicketIn):
 class CommentIn(BaseModel):
     body: Union[str, None] = None
     status: TicketStatus
+    assigned_to: Union[str, None] = None
 
 class CommentInDB(CommentIn):
     key: str = None

@@ -1,5 +1,3 @@
-import os
-import random
 from typing import List
 
 from fastapi import APIRouter, status, Depends, HTTPException, Request
@@ -8,7 +6,7 @@ from deta import Base
 
 from ..typedefs.tickets import TicketIn, TicketStatus, TicketInDB, TicketOut, CommentIn, CommentInDB, CommentOut
 from ..typedefs.users import User
-from ..utils.auth import get_current_active_user
+from ..utils.auth import get_current_active_user, get_random_admin
 from ... import email
 
 router = APIRouter(
@@ -87,8 +85,8 @@ async def post_comment(key: str, comment: CommentIn, request: Request, current_u
             submitted_by=current_user.email
         )
         ticket_changed = False
-        if not ticket_in_db.assigned_to and ticket_in_db.submitted_by != current_user.email:
-            ticket_in_db.assigned_to = current_user.email
+        if comment_in_db.assigned_to:
+            ticket_in_db.assigned_to = comment_in_db.assigned_to
             ticket_changed = True
         if comment_in_db.status != ticket_in_db.status:
             ticket_in_db.status = comment_in_db.status
@@ -108,32 +106,28 @@ async def post_comment(key: str, comment: CommentIn, request: Request, current_u
 
 # Helper Methods ##############################################################
 
-def get_admins():
-    db = Base("dr-ticket-md-users")
-    res = db.fetch(query={
-        "admin": True
-    })
-    admins: List[User] = list(map(lambda admin: User(**admin), res.items))
-    return admins
-
-def get_random_admin():
-    admins = get_admins()
-    rand_index = random.randint(0, len(admins) - 1)
-    rand_admin: User = admins[rand_index]
-    return rand_admin
-
 def email_stakeholders(ticket: TicketInDB, comment: CommentInDB = None):
     try:
+        ticket_info = f"[{ticket.status.upper()}] {ticket.subject}"
         to = []
-        if not comment or comment.submitted_by == ticket.submitted_by:
-            to.append({"email": ticket.assigned_to})
-        else:
+        subject = f"Ticket Updated: {ticket_info}"
+
+        if comment and comment.submitted_by != ticket.submitted_by:
+            if comment.assigned_to:
+                to.append({"email": comment.assigned_to})
+                subject = f"Ticket Reassigned: {ticket_info}"
             to.append({"email": ticket.submitted_by})
+        else:
+            if not comment:
+                subject = f"Ticket Assigned: {ticket_info}"
+            to.append({"email": ticket.assigned_to})
+
         email.send(
             to_addrs=to,
-            subject=f"Ticket has been updated: ({ticket.status}) {ticket.subject}" if comment else f"Ticket has been assigned to you: ({ticket.status}) {ticket.subject}",
+            subject=subject,
             ticket_url=ticket.url,
             update_body=comment.body if comment else ticket.body
         )
     except Exception as err:
         print(str(err))
+        raise err

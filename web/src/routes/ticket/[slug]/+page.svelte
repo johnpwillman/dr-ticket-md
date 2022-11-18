@@ -19,6 +19,9 @@
 		md = new window.remarkable.Remarkable();
 	})
 
+    let userCookie = Cookies.get('user')
+    let user = userCookie ? JSON.parse(userCookie) : undefined
+
     let body = ''
     let ticket
     let status
@@ -48,6 +51,29 @@
         })
     }
 
+    let selectedAdmin = ''
+    async function getAdmins() {
+        if (Cookies.get('jwt')) {
+            const response = await fetch(apiRoot + 'users/admins', {
+                headers: {
+                    "Authorization": "Bearer " + Cookies.get('jwt')
+                }
+            })
+
+            if (response.status === 401) {
+                //JWT Timed out
+                Cookies.remove('jwt')
+                Cookies.remove('user')
+                await goto('/login', {
+                    invalidateAll: true
+                })
+            }
+
+            let allAdmins = await response.json()
+            return allAdmins.filter(admin => admin.key != user.key)
+        }
+    }
+
     async function newComment() {
         const response = await fetch(apiRoot + "tickets/" + ticket.key + "/comments", {
             method: "POST",
@@ -72,6 +98,36 @@
 
         await getTicket()
         body = ''
+    }
+
+    async function commentAndReassign() {
+        if (selectedAdmin.length > 0) {
+            const response = await fetch(apiRoot + "tickets/" + ticket.key + "/comments", {
+                method: "POST",
+                body: JSON.stringify({
+                    body: body,
+                    status: status,
+                    assigned_to: selectedAdmin
+                }),
+                headers: {
+                    "Authorization": "Bearer " + Cookies.get('jwt'),
+                    "Content-Type": "application/json"
+                }
+            })
+
+            if (response.status === 401) {
+                //JWT Timed out
+                Cookies.remove('jwt')
+                Cookies.remove('user')
+                await goto('/login', {
+                    invalidateAll: true
+                })
+            }
+
+            await goto('/', {
+                invalidateAll: true
+            })
+        }
     }
 </script>
 
@@ -100,7 +156,7 @@
                 <div class="card">
                     <h4 class="card-header">Update</h4>
                     <div class="card-body">
-                        <div class="row">
+                        <div class="row pb-3">
                             <div class="col-md-8">
                                 <select bind:value="{status}" class="form-select comment-submit-select" name="status" id="exampleSelect">
                                     <option value="open">Open</option>
@@ -112,6 +168,24 @@
                                 <button class="btn btn-secondary bg-indigo-400">Submit</button>
                             </div>
                         </div>
+                        {#if user.admin}
+                            {#await getAdmins()}
+                                ...Retreiving Admin List
+                            {:then admins} 
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <select bind:value="{selectedAdmin}" class="form-select comment-submit-select" name="status" id="exampleSelect">
+                                        {#each admins as admin}
+                                        <option value="{admin.email}">{admin.email}</option>
+                                        {/each}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-secondary bg-indigo-400" on:click|preventDefault={commentAndReassign}>Reassign</button>
+                                </div>
+                            </div>
+                            {/await}
+                        {/if}
                     </div>
                 </div>
             </div>

@@ -50,6 +50,10 @@
                 {/if}
             </div>
             <div class="card-footer w-100 text-muted">
+                {#if comment.assigned_to}
+                Ticket reassigned to: {comment.assigned_to}
+                <br>
+                {/if}
                 Ticket state set to: {comment.status.toUpperCase()}
             </div>
         </div>

@@ -5,7 +5,7 @@ from fastapi import APIRouter, status, Depends, HTTPException
 from deta import Base
 
 from ..typedefs.users import Signup, User, UserInDB
-from ..utils.auth import get_password_hash, get_current_active_user
+from ..utils.auth import get_password_hash, get_current_active_user, get_current_active_admin, get_admins
 
 router = APIRouter(
     prefix='/v1/users',
@@ -17,12 +17,7 @@ router = APIRouter(
 ###############################################################################
 
 @router.get("/", response_model=List[User])
-async def all_users(current_user: User = Depends(get_current_active_user)):
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User lacks permission for this route."
-        )
+async def all_users(current_user: User = Depends(get_current_active_admin)):
     db = Base("dr-ticket-md-users")
     res = db.fetch()
     all_users: List[User] = res.items
@@ -51,12 +46,7 @@ async def signup(signup: Signup):
     return {"message": "User created"}
 
 @router.patch("/{key}", response_model=User)
-async def edit_user(key: str, user: User, current_user: User = Depends(get_current_active_user)):
-    if not current_user.admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User lacks permission for this route."
-        )
+async def edit_user(key: str, user: User, current_user: User = Depends(get_current_active_admin)):
     if not key == user.key:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -78,3 +68,7 @@ async def edit_user(key: str, user: User, current_user: User = Depends(get_curre
 @router.get("/me", response_model=User)
 async def my_user(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+@router.get("/admins", response_model=List[User])
+async def my_user(current_user: User = Depends(get_current_active_admin)):
+    return get_admins()
