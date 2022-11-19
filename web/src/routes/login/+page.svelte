@@ -83,13 +83,12 @@
             <button class="btn btn-lg btn-secondary" on:click|preventDefault={register}>Register</button>
         </div>
     </form>
+    {#if result.success}
+        <p>The action was successful. {result.detail}</p>
+    {:else if result.detail}
+        <p class="error">The action was unsuccessful. {result.detail}</p>
+    {/if}
 </main>
-
-{#if result.success}
-    <p>The action was successful. {result.detail}</p>
-{:else if result.detail}
-    <p class="error">The action was unsuccessful. {result.detail}</p>
-{/if}
 
 <style>
 

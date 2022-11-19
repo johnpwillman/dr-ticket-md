@@ -58,53 +58,44 @@
                     invalidateAll: true
                 })
             }
+
+            await getUsers()
         }
+    }
+
+    async function changeUserAdmin(user) {
+        user.admin = !user.admin
+        await updateUser(user)
+    }
+
+    async function changeUserDisabled(user) {
+        user.disabled = !user.disabled
+        await updateUser(user)
     }
 
 </script>
 
-<main class="container">
+<main class="container text-center mx-auto">
     {#await getUsers()}
         <p>Retrieving users</p>
     {:then}
-    <div class="mx-auto col-md-3 pb-4">
-        <h3 class="text-center">Registered Users</h3>
+    <div class="row pb-3">
+        <h1>Registered Users</h1>
         <input class="form-control" bind:value="{search}" placeholder="Search by email" />
     </div>
-    <table class="mx-auto user-table">
-        <thead>
-            <tr>
-                <th>Email</th>
-                <th>Admin</th>
-                <th>Disabled</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each filteredUsers as user}
-            <tr>
-                <td>
-                    {user.email}
-                </td>
-                <td class="text-center">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="admin" bind:checked="{user.admin}">
-                        Admin
-                    </div>
-                </td>
-                <td class="text-center">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="disabled" bind:checked="{user.disabled}">
-                        Disabled
-                    </div>
-                </td>
-                <td class="text-center">
-                    <button class="btn btn-secondary btn-sm bg-indigo-400" on:click|preventDefault={() => updateUser(user)} type="submit" name="submit">Update</button>
-                </td>
-            </tr>
-            {/each}
-        </tbody>
-    </table>
+        {#each filteredUsers as user}
+        <div class="row d-flex flex-wrap pb-3">
+            <div class="flex-grow-1 col-sm-6 text-start"><h5>{user.email}</h5></div>
+            <div class="col-sm-6 d-flex align-items-center">
+                <div class="ms-auto pe-2">
+                    <button class="btn btn-secondary checked-{user.admin.toString()}" on:click|preventDefault={() => changeUserAdmin(user)}>{user.admin ? "Admin" : "Not Admin"}</button>
+                </div>
+                <div class="me-auto ps-2">
+                    <button class="btn btn-secondary checked-{(!user.disabled).toString()}" on:click|preventDefault={() => changeUserDisabled(user)}>{user.disabled ? "Disabled" : "Enabled"}</button>
+                </div>
+            </div>
+        </div>
+        {/each}
     {:catch error}
         <p>{error}</p>
     {/await}
@@ -119,7 +110,7 @@
         background-color: #8540f5;
     }
 
-    .user-table th, .user-table td {
-        padding: 0 2em 1em 2em!important;
+    .btn.checked-true {
+        background-color: #8540f5;
     }
 </style>
