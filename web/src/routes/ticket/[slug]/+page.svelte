@@ -50,6 +50,10 @@
             status = ticket.status
             return ticket
         }
+        Cookies.set('routeTo', data.url.pathname, {
+            path: '/login',
+            sameSite: 'strict'
+        })
         await goto('/login', {
             invalidateAll: true
         })
