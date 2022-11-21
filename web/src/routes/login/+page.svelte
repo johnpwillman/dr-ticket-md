@@ -53,7 +53,6 @@
         }
     }
     async function register() {
-        console.log('register', email, password)
         const response = await fetch(apiRoot + "users/", {
             method: "POST",
             body: JSON.stringify({
