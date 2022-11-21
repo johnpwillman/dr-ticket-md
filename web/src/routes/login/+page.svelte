@@ -47,7 +47,9 @@
                 Cookies.remove('routeTo')
                 await goto(routeTo)
             }
-            await goto('/')
+            else {
+                await goto('/')
+            }
         }
     }
     async function register() {

@@ -38,7 +38,7 @@
                 Cookies.remove('jwt')
                 Cookies.remove('user')
                 Cookies.set('routeTo', data.url.pathname, {
-                    path: '/login',
+                    path: '/',
                     sameSite: 'strict'
                 })
                 await goto('/login', {
@@ -50,13 +50,15 @@
             status = ticket.status
             return ticket
         }
-        Cookies.set('routeTo', data.url.pathname, {
-            path: '/login',
-            sameSite: 'strict'
-        })
-        await goto('/login', {
-            invalidateAll: true
-        })
+        else {
+            Cookies.set('routeTo', data.url.pathname, {
+                path: '/',
+                sameSite: 'strict'
+            })
+            await goto('/login', {
+                invalidateAll: true
+            })
+        }
     }
 
     let selectedAdmin = ''
@@ -73,7 +75,7 @@
                 Cookies.remove('jwt')
                 Cookies.remove('user')
                 Cookies.set('routeTo', data.url.pathname, {
-                    path: '/login',
+                    path: '/',
                     sameSite: 'strict'
                 })
                 await goto('/login', {
@@ -104,7 +106,7 @@
             Cookies.remove('jwt')
             Cookies.remove('user')
             Cookies.set('routeTo', data.url.pathname, {
-                path: '/login',
+                path: '/',
                 sameSite: 'strict'
             })
             await goto('/login', {
@@ -136,7 +138,7 @@
                 Cookies.remove('jwt')
                 Cookies.remove('user')
                 Cookies.set('routeTo', data.url.pathname, {
-                    path: '/login',
+                    path: '/',
                     sameSite: 'strict'
                 })
                 await goto('/login', {
