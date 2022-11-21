@@ -37,6 +37,10 @@
                 //JWT Timed out
                 Cookies.remove('jwt')
                 Cookies.remove('user')
+                Cookies.set('routeTo', data.url.pathname, {
+                    path: '/login',
+                    sameSite: 'strict'
+                })
                 await goto('/login', {
                     invalidateAll: true
                 })
@@ -64,6 +68,10 @@
                 //JWT Timed out
                 Cookies.remove('jwt')
                 Cookies.remove('user')
+                Cookies.set('routeTo', data.url.pathname, {
+                    path: '/login',
+                    sameSite: 'strict'
+                })
                 await goto('/login', {
                     invalidateAll: true
                 })
@@ -91,6 +99,10 @@
             //JWT Timed out
             Cookies.remove('jwt')
             Cookies.remove('user')
+            Cookies.set('routeTo', data.url.pathname, {
+                path: '/login',
+                sameSite: 'strict'
+            })
             await goto('/login', {
                 invalidateAll: true
             })
@@ -119,6 +131,10 @@
                 //JWT Timed out
                 Cookies.remove('jwt')
                 Cookies.remove('user')
+                Cookies.set('routeTo', data.url.pathname, {
+                    path: '/login',
+                    sameSite: 'strict'
+                })
                 await goto('/login', {
                     invalidateAll: true
                 })

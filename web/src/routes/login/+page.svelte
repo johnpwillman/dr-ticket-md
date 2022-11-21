@@ -42,6 +42,11 @@
                 path: '/',
                 sameSite: 'strict'
             })
+            if (Cookies.get('routeTo')) {
+                let routeTo = Cookies.get('routeTo')
+                Cookies.remove('routeTo')
+                await goto(routeTo)
+            }
             await goto('/')
         }
     }
