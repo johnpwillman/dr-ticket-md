@@ -17,7 +17,7 @@
         },
         {
             "key": "ACCESS_TOKEN_EXPIRE_MINUTES",
-            "description": "Number of minutes before access to API expires. (Max: 30)",
+            "description": "Number of minutes before access to API expires.",
             "value": "30",
             "required": false 
         },
